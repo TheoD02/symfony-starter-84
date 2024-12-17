@@ -1,0 +1,58 @@
+# Ensure text files have LF (Unix) line endings
+* text=auto eol=lf
+
+# PHP files
+*.php text eol=lf
+
+# JavaScript and TypeScript files
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+
+# HTML files
+*.html text eol=lf
+
+# CSS and SCSS files
+*.css text eol=lf
+*.scss text eol=lf
+
+# YAML files
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# JSON files
+*.json text eol=lf
+
+# Markdown files
+*.md text eol=lf
+
+# Twig templates (Symfony specific)
+*.twig text eol=lf
+
+# XML files (Symfony specific)
+*.xml text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Ignore binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary
+
+# Ignore compiled code and vendor dependencies
+/vendor/* binary
+/node_modules/* binary
+/pnpm-lock.yaml text eol=lf
+/.pnpm-debug.log text eol=lf
+/build/* binary
+/dist/* binary
+
+# Composer lock file
+/composer.lock text eol=lf
+
+# Symfony environment variables
+/.env* text eol=lf

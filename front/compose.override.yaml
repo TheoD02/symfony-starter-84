@@ -1,0 +1,22 @@
+# Development environment override
+services:
+    front:
+        container_name: {{PREFIX_CONTAINER}}-front
+        build:
+            target: dev
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.front.rule=Host(`{{PREFIX_URL}}.web.localhost`)"
+            - "traefik.http.routers.front.tls=true"
+            - "traefik.http.services.front.loadbalancer.server.port=5173"
+            - "traefik.http.routers.front.service=front"
+            - "traefik.http.routers.front-devtools.rule=Host(`{{PREFIX_URL}}-front-devtools.web.localhost`)"
+            - "traefik.http.routers.front-devtools.tls=true"
+            - "traefik.http.services.front-devtools.loadbalancer.server.port=5001"
+            - "traefik.http.routers.front-devtools.service=front-devtools"
+        networks:
+            - traefik
+
+networks:
+    traefik:
+        external: true

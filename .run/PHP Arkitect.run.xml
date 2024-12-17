@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="PHP Arkitect" type="ComposerRunConfigurationType" factoryName="Composer Script">
+    <option name="commandLineParameters" value=""/>
+    <option name="pathToComposerJson" value="$PROJECT_DIR$/app/composer.json"/>
+    <option name="script" value="phparkitect"/>
+    <method v="2"/>
+  </configuration>
+</component>

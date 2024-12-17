@@ -1,0 +1,118 @@
+{
+  "name": "symfony/skeleton",
+  "description": "A minimal Symfony project recommended to create bare bones applications",
+  "license": "MIT",
+  "type": "project",
+  "require": {
+    "php": ">=8.4",
+    "ext-ctype": "*",
+    "ext-iconv": "*",
+    "doctrine/dbal": "^3.9.3",
+    "doctrine/doctrine-bundle": "^2.13.1",
+    "doctrine/doctrine-fixtures-bundle": "^4.0",
+    "doctrine/doctrine-migrations-bundle": "^3.3.1",
+    "doctrine/orm": "^3.3",
+    "nelmio/api-doc-bundle": "^4.33.4",
+    "nelmio/cors-bundle": "^2.5",
+    "phpdocumentor/reflection-docblock": "^5.6.1",
+    "phpstan/phpdoc-parser": "^2.0",
+    "runtime/frankenphp-symfony": "^0.2.0",
+    "symfony/asset": "~7.2.0",
+    "symfony/console": "~7.2.1",
+    "symfony/dotenv": "~7.2.0",
+    "symfony/flex": "^2.4.7",
+    "symfony/framework-bundle": "~7.2.1",
+    "symfony/monolog-bundle": "^3.10",
+    "symfony/property-access": "~7.2.0",
+    "symfony/property-info": "~7.2.1",
+    "symfony/runtime": "~7.2.0",
+    "symfony/serializer": "~7.2.0",
+    "symfony/twig-bundle": "~7.2.0",
+    "symfony/uid": "~7.2.0",
+    "symfony/validator": "~7.2.0",
+    "symfony/yaml": "~7.2.0",
+    "twig/extra-bundle": "^2.12 || ^3.17",
+    "twig/twig": "^2.12 || ^3.17.1"
+  },
+  "require-dev": {
+    "bamarni/composer-bin-plugin": "^1.8.2",
+    "ergebnis/composer-normalize": "^2.45",
+    "phpunit/phpunit": "^11.5.1",
+    "symfony/debug-bundle": "~7.2.0",
+    "symfony/maker-bundle": "^1.61",
+    "symfony/stopwatch": "~7.2.0",
+    "symfony/web-profiler-bundle": "~7.2.0",
+    "zenstruck/foundry": "^2.3.1"
+  },
+  "replace": {
+    "symfony/polyfill-ctype": "*",
+    "symfony/polyfill-iconv": "*",
+    "symfony/polyfill-php72": "*",
+    "symfony/polyfill-php73": "*",
+    "symfony/polyfill-php74": "*",
+    "symfony/polyfill-php80": "*",
+    "symfony/polyfill-php81": "*",
+    "symfony/polyfill-php82": "*"
+  },
+  "conflict": {
+    "symfony/symfony": "*"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "bamarni/composer-bin-plugin": true,
+      "ergebnis/composer-normalize": true,
+      "php-http/discovery": true,
+      "symfony/flex": true,
+      "symfony/runtime": true
+    },
+    "bump-after-update": true,
+    "sort-packages": true
+  },
+  "extra": {
+    "symfony": {
+      "allow-contrib": false,
+      "docker": true,
+      "require": "7.2.*"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "@composer bin ecs install --ansi",
+      "@composer bin phparkitect install --ansi",
+      "@composer bin phpmd install --ansi",
+      "@composer bin phpstan install --ansi",
+      "@composer bin rector install --ansi",
+      "@composer normalize",
+      "@auto-scripts"
+    ],
+    "post-update-cmd": [
+      "@composer normalize",
+      "@auto-scripts"
+    ],
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "assets:install %PUBLIC_DIR%": "symfony-cmd"
+    },
+    "class-leak-check": "class-leak check bin src translations --skip-suffix=\"Command\" --skip-suffix=\"Controller\" --skip-suffix=\"Kernel\"",
+    "ecs": "ecs check --ansi --config vendor-bin/ecs/ecs.php --clear-cache",
+    "ecs-fix": "ecs check --ansi --config vendor-bin/ecs/ecs.php --clear-cache --fix",
+    "phparkitect": "phparkitect check --ansi --config vendor-bin/phparkitect/phparkitect.php",
+    "phpmd": "phpmd src/ text codesize",
+    "phpstan": "phpstan analyse --ansi --configuration vendor-bin/phpstan/phpstan.neon --memory-limit=1G -vv",
+    "phpstan-pro": "phpstan clear-result-cache && phpstan analyse --ansi --configuration vendor-bin/phpstan/phpstan.neon --memory-limit=1G --pro",
+    "rector": "rector process --ansi --config vendor-bin/rector/rector.php --clear-cache --dry-run",
+    "rector-fix": "rector process --ansi --config vendor-bin/rector/rector.php --clear-cache"
+  }
+}

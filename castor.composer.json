@@ -1,0 +1,5 @@
+{
+    "require": {
+        "phlak/semver": "^6.1"
+    }
+}

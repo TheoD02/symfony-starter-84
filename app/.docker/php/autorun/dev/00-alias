@@ -1,0 +1,10 @@
+#!/bin/fish
+
+echo ""
+echo "📦 Adding alias"
+
+alias --save console="php bin/console"
+alias --save sf="php bin/console"
+
+echo "📦 Alias added"
+echo ""

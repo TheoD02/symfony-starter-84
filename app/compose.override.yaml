@@ -1,0 +1,89 @@
+# Development environment override
+services:
+    php:
+        container_name: {{PREFIX_CONTAINER}}-php
+        build:
+            context: .
+            target: frankenphp_dev
+        ports:
+            - "11115:11115"
+        volumes:
+            - ./:/app
+            - ../.castor:/.castor
+            - ~/.ssh:/home/www-data/.ssh:ro
+            - user_data:/home/www-data
+            - ./.docker/php/Caddyfile.dev:/etc/caddy/Caddyfile:ro
+            - ./.docker/php/conf.d/dev/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
+            # If you develop on Mac or Windows you can remove the vendor/ directory
+            #  from the bind-mount for better performance by enabling the next line:
+            #- /app/vendor
+        environment:
+            MERCURE_EXTRA_DIRECTIVES: demo
+            # See https://xdebug.org/docs/all_settings#mode
+            XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+            SYMFONY_VERSION: "7.2.*"
+        extra_hosts:
+            # Ensure that host.docker.internal is correctly defined on Linux
+            - host.docker.internal:host-gateway
+        tty: true
+        labels:
+            - "traefik.enable=true"
+            - "traefik.network=traefik"
+            - "traefik.http.routers.php-nelmio.rule=Host(`{{PREFIX_URL}}.api.localhost`)"
+            - "traefik.http.routers.php-nelmio.tls=true"
+            - "traefik.http.services.php-nelmio.loadbalancer.server.port=80"
+            - "traefik.http.routers.php-nelmio.middlewares=php-nelmio-cors"
+
+            # CORS and Forward Headers Middleware
+            - "traefik.http.middlewares.php-nelmio-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
+            - "traefik.http.middlewares.php-nelmio-cors.headers.accesscontrolallowheaders=*"
+            - "traefik.http.middlewares.php-nelmio-cors.headers.accesscontrolalloworiginlist=*"
+            #      - "traefik.http.middlewares.php-nelmio-cors.headers.accesscontrolmaxage=100"
+            #      - "traefik.http.middlewares.php-nelmio-cors.headers.addvaryheader=true"
+
+            # Forward Headers from Traefik to Caddy
+        #      - "traefik.http.middlewares.php-nelmio-cors.headers.customrequestheaders.X-Forwarded-Proto=https"
+        #      - "traefik.http.middlewares.php-nelmio-cors.headers.customrequestheaders.X-Forwarded-Host={{PLACEHOLDER}}..bruno.localhost"
+        #      - "traefik.http.middlewares.php-nelmio-cors.headers.customrequestheaders.X-Real-IP={client_ip}"
+        networks:
+            - traefik
+
+    ###> symfony/mercure-bundle ###
+    ###< symfony/mercure-bundle ###
+
+    ###> doctrine/doctrine-bundle ###
+    database:
+        container_name: {{PREFIX_CONTAINER}}-database
+    ###< doctrine/doctrine-bundle ###
+
+    pgbouncer: # permit multiple connections to the database
+        image: edoburu/pgbouncer:latest
+        container_name: {{PREFIX_CONTAINER}}-pgbouncer
+        environment:
+            DATABASE_URL: postgres://${POSTGRES_USER:-root}:${POSTGRES_PASSWORD:-root}@database/${POSTGRES_DB:-app}
+        volumes:
+            - ./.docker/pgbouncer:/etc/pgbouncer
+        ports:
+            - "6435:6432"
+        depends_on:
+            - database
+        networks:
+            - database
+
+    rabbitmq:
+        container_name: {{PREFIX_CONTAINER}}-rabbitmq
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.web.localhost`)"
+            - "traefik.http.routers.rabbitmq.tls=true"
+            - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
+        networks:
+            - rabbitmq
+            - traefik
+
+networks:
+    traefik:
+        external: true
+
+volumes:
+    user_data:

@@ -1,0 +1,116 @@
+#!/bin/sh
+
+set -e
+
+echo ""
+echo "📦 Checking if project is already installed"
+if [ -f /app/composer.json ]; then
+    echo "📦 Project already installed"
+
+    echo "📦 Installing dependencies"
+    composer install --no-progress --no-interaction || echo "📦 Composer install failed. Please check manually."
+    exit 0
+fi
+
+SYMFONY_TMP_DIR="/tmp/symfony"
+if [ -z "$SYMFONY_VERSION" ]; then
+    SYMFONY_VERSION="6.4.*"
+fi
+if [ -z "$SYMFONY_ADDITIONAL_PACKAGES" ]; then
+    SYMFONY_ADDITIONAL_PACKAGES="orm orm-fixtures serializer validator nelmio/api-doc-bundle nelmio/cors-bundle logger uid twig asset" # twig and asset is required for nelmio/.bruno-doc-bundle
+fi
+if [ -z "$SYMFONY_ADDITIONAL_DEV_PACKAGES" ]; then
+    SYMFONY_ADDITIONAL_DEV_PACKAGES="maker foundry debug web-profiler-bundle phpunit/phpunit"
+fi
+
+
+echo "Cleaning up"
+if [ -d /tmp/symfony ]; then
+    rm -rf /tmp/symfony
+fi
+
+echo "📦 Installing Symfony $SYMFONY_VERSION with PHP $SYMFONY_PHP_VERSION"
+# symfony local:new --dir=$SYMFONY_TMP_DIR --version=$SYMFONY_VERSION --no-git
+composer create-project "symfony/skeleton $SYMFONY_VERSION" $SYMFONY_TMP_DIR --prefer-dist --no-progress --no-interaction --no-install
+
+echo "Moving files to /app"
+cd /tmp/symfony
+cp -Rp . /app
+
+echo "Cleaning up"
+rm -Rf /tmp/symfony
+
+cd /app
+
+echo "📦 Installing dependencies (FrankenPHP)"
+composer require "php:>=8.4" runtime/frankenphp-symfony
+
+echo "📦 Installing setup default configuration"
+composer config --json allow-plugins.bamarni/composer-bin-plugin true
+composer config allow-plugins.ergebnis/composer-normalize true
+composer config --json extra.symfony.docker 'true'
+composer config --json extra.composer-normalize.indent-size 2
+composer config --json extra.composer-normalize.indent-style space
+
+echo "📦 Installing Composer plugins"
+composer require --dev bamarni/composer-bin-plugin ergebnis/composer-normalize
+
+echo "" >> .gitignore
+echo "###> bamarni/composer-bin-plugin ###" >> .gitignore
+echo '/vendor-bin/**/vendor/' >> .gitignore
+echo "###< bamarni/composer-bin-plugin ###" >> .gitignore
+
+echo "📦 Setting custom commands/scripts"
+composer config scripts.post-install-cmd.0 "@composer bin ecs install --ansi"
+composer config scripts.post-install-cmd.1 "@composer bin phparkitect install --ansi"
+composer config scripts.post-install-cmd.2 "@composer bin phpmd install --ansi"
+composer config scripts.post-install-cmd.3 "@composer bin phpstan install --ansi"
+composer config scripts.post-install-cmd.4 "@composer bin rector install --ansi"
+composer config scripts.post-install-cmd.5 "@auto-scripts"
+
+composer config scripts.phpstan "phpstan analyse --ansi --configuration vendor-bin/phpstan/phpstan.neon --memory-limit=1G -vv"
+composer config scripts.phpstan-pro "phpstan clear-result-cache && phpstan analyse --ansi --configuration vendor-bin/phpstan/phpstan.neon --memory-limit=1G --pro"
+composer config scripts.ecs "ecs check --ansi --config vendor-bin/ecs/ecs.php --clear-cache"
+composer config scripts.ecs-fix "ecs check --ansi --config vendor-bin/ecs/ecs.php --clear-cache --fix"
+composer config scripts.phparkitect "phparkitect check --ansi --config vendor-bin/phparkitect/phparkitect.php"
+composer config scripts.phpmd "phpmd src/ text codesize"
+composer config scripts.rector "rector process --ansi --config vendor-bin/rector/rector.php --clear-cache --dry-run"
+composer config scripts.rector-fix "rector process --ansi --config vendor-bin/rector/rector.php --clear-cache"
+composer config scripts.class-leak-check "class-leak check bin src translations --skip-suffix=\"Command\" --skip-suffix=\"Controller\" --skip-suffix=\"Kernel\""
+
+echo "📦 Running install command"
+composer install --no-progress --no-interaction
+
+# add flex
+
+if [ ! -z "$SYMFONY_ADDITIONAL_PACKAGES" ]; then
+    echo "📦 Installing additional packages $SYMFONY_ADDITIONAL_PACKAGES"
+    composer require $SYMFONY_ADDITIONAL_PACKAGES --no-interaction
+fi
+
+if [ ! -z "$SYMFONY_ADDITIONAL_DEV_PACKAGES" ]; then
+    echo "📦 Installing additional dev packages $SYMFONY_ADDITIONAL_DEV_PACKAGES"
+    composer require --dev $SYMFONY_ADDITIONAL_DEV_PACKAGES --no-interaction
+fi
+
+echo "📦 Setting up .env.dev"
+echo "" >> /app/.env.dev
+echo "###> doctrine/doctrine-bundle ###" >> /app/.env.dev
+echo "DATABASE_URL=postgresql://root:root@pgbouncer:6432/app?serverVersion=16&charset=utf8" >> /app/.env.dev
+echo "###< doctrine/doctrine-bundle ###" >> /app/.env.dev
+
+echo "📦 Setting up .env.test"
+echo "" >> /app/.env.dev
+echo "###> doctrine/doctrine-bundle ###" >> /app/.env.test
+echo "DATABASE_URL=postgresql://root:root@pgbouncer:6432/app?serverVersion=16&charset=utf8" >> /app/.env.test
+echo "###< doctrine/doctrine-bundle ###" >> /app/.env.test
+
+echo "📦 Setup PHPUNIT"
+rm -f /app/phpunit.xml.dist
+#vendor/bin/phpunit --generate-configuration
+
+echo "📦 Setting permissions"
+chown -R www-data:www-data /app
+
+echo "Symfony installed"
+echo ""

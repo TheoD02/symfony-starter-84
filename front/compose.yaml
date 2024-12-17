@@ -1,0 +1,7 @@
+services:
+    front:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        volumes:
+            - ./:/app            # Mount local source code into the container
