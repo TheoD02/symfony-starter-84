@@ -18,11 +18,11 @@ services:
         networks:
             - database
             - rabbitmq
-    
+
     # Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
     ###> symfony/mercure-bundle ###
     ###< symfony/mercure-bundle ###
-    
+
     ###> doctrine/doctrine-bundle ###
     database:
         image: postgres:${POSTGRES_VERSION:-16}-alpine
@@ -42,16 +42,6 @@ services:
         networks:
             - database
     ###< doctrine/doctrine-bundle ###
-    
-    rabbitmq:
-        image: rabbitmq:3-management
-        environment:
-            RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-root}
-            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-root}
-        volumes:
-            - rabbitmq_data:/var/lib/rabbitmq
-        networks:
-            - rabbitmq
 
 networks:
     database: ~
@@ -62,9 +52,9 @@ volumes:
     caddy_config:
     ###> symfony/mercure-bundle ###
     ###< symfony/mercure-bundle ###
-    
+
     postgres_data:
     rabbitmq_data:
-    
+
     ###> doctrine/doctrine-bundle ###
 ###< doctrine/doctrine-bundle ###

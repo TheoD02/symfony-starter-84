@@ -6,14 +6,14 @@ services:
             target: dev
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.front.rule=Host(`{{PREFIX_URL}}.web.localhost`)"
-            - "traefik.http.routers.front.tls=true"
-            - "traefik.http.services.front.loadbalancer.server.port=5173"
-            - "traefik.http.routers.front.service=front"
-            - "traefik.http.routers.front-devtools.rule=Host(`{{PREFIX_URL}}-front-devtools.web.localhost`)"
-            - "traefik.http.routers.front-devtools.tls=true"
-            - "traefik.http.services.front-devtools.loadbalancer.server.port=5001"
-            - "traefik.http.routers.front-devtools.service=front-devtools"
+            - "traefik.http.routers.front-{{PREFIX_CONTAINER}}.rule=Host(`{{PREFIX_URL}}.web.localhost`)"
+            - "traefik.http.routers.front-{{PREFIX_CONTAINER}}.tls=true"
+            - "traefik.http.services.front-{{PREFIX_CONTAINER}}.loadbalancer.server.port=5173"
+            - "traefik.http.routers.front-{{PREFIX_CONTAINER}}.service=front-{{PREFIX_CONTAINER}}"
+            - "traefik.http.routers.front-{{PREFIX_CONTAINER}}-devtools.rule=Host(`{{PREFIX_URL}}-front-devtools.web.localhost`)"
+            - "traefik.http.routers.front-{{PREFIX_CONTAINER}}-devtools.tls=true"
+            - "traefik.http.services.front-{{PREFIX_CONTAINER}}-devtools.loadbalancer.server.port=5001"
+            - "traefik.http.routers.front-{{PREFIX_CONTAINER}}-devtools.service=front-{{PREFIX_CONTAINER}}-devtools"
         networks:
             - traefik
 

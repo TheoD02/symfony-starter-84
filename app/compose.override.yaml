@@ -29,22 +29,22 @@ services:
         labels:
             - "traefik.enable=true"
             - "traefik.network=traefik"
-            - "traefik.http.routers.php-nelmio.rule=Host(`{{PREFIX_URL}}.api.localhost`)"
-            - "traefik.http.routers.php-nelmio.tls=true"
-            - "traefik.http.services.php-nelmio.loadbalancer.server.port=80"
-            - "traefik.http.routers.php-nelmio.middlewares=php-nelmio-cors"
+            - "traefik.http.routers.php-{{PREFIX_CONTAINER}}.rule=Host(`{{PREFIX_URL}}.api.localhost`)"
+            - "traefik.http.routers.php-{{PREFIX_CONTAINER}}.tls=true"
+            - "traefik.http.services.php-{{PREFIX_CONTAINER}}.loadbalancer.server.port=80"
+            - "traefik.http.routers.php-{{PREFIX_CONTAINER}}.middlewares=php-{{PREFIX_CONTAINER}}-cors"
 
             # CORS and Forward Headers Middleware
-            - "traefik.http.middlewares.php-nelmio-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
-            - "traefik.http.middlewares.php-nelmio-cors.headers.accesscontrolallowheaders=*"
-            - "traefik.http.middlewares.php-nelmio-cors.headers.accesscontrolalloworiginlist=*"
-            #      - "traefik.http.middlewares.php-nelmio-cors.headers.accesscontrolmaxage=100"
-            #      - "traefik.http.middlewares.php-nelmio-cors.headers.addvaryheader=true"
+            - "traefik.http.middlewares.php-{{PREFIX_CONTAINER}}-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
+            - "traefik.http.middlewares.php-{{PREFIX_CONTAINER}}-cors.headers.accesscontrolallowheaders=*"
+            - "traefik.http.middlewares.php-{{PREFIX_CONTAINER}}-cors.headers.accesscontrolalloworiginlist=*"
+            #      - "traefik.http.middlewares.php-{{PREFIX_CONTAINER}}-cors.headers.accesscontrolmaxage=100"
+            #      - "traefik.http.middlewares.php-{{PREFIX_CONTAINER}}-cors.headers.addvaryheader=true"
 
             # Forward Headers from Traefik to Caddy
-        #      - "traefik.http.middlewares.php-nelmio-cors.headers.customrequestheaders.X-Forwarded-Proto=https"
-        #      - "traefik.http.middlewares.php-nelmio-cors.headers.customrequestheaders.X-Forwarded-Host={{PLACEHOLDER}}..bruno.localhost"
-        #      - "traefik.http.middlewares.php-nelmio-cors.headers.customrequestheaders.X-Real-IP={client_ip}"
+        #      - "traefik.http.middlewares.php-{{PREFIX_CONTAINER}}-cors.headers.customrequestheaders.X-Forwarded-Proto=https"
+        #      - "traefik.http.middlewares.php-{{PREFIX_CONTAINER}}-cors.headers.customrequestheaders.X-Forwarded-Host={{PLACEHOLDER}}..bruno.localhost"
+        #      - "traefik.http.middlewares.php-{{PREFIX_CONTAINER}}-cors.headers.customrequestheaders.X-Real-IP={client_ip}"
         networks:
             - traefik
 
@@ -69,17 +69,6 @@ services:
             - database
         networks:
             - database
-
-    rabbitmq:
-        container_name: {{PREFIX_CONTAINER}}-rabbitmq
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.web.localhost`)"
-            - "traefik.http.routers.rabbitmq.tls=true"
-            - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
-        networks:
-            - rabbitmq
-            - traefik
 
 networks:
     traefik:
