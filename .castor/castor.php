@@ -30,7 +30,7 @@ function build(bool $force = false): void
                 'build',
                 '--build-arg', "USER_ID={$buildArgs['USER_ID']}",
                 '--build-arg', "GROUP_ID={$buildArgs['GROUP_ID']}",
-            ])->debug()->run(),
+            ])->run(),
             id: 'docker-build',
             fingerprint: fgp()->docker(),
             force: $force || !docker()->hasImages(['test-php', 'test-front']),
