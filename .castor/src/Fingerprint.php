@@ -20,6 +20,7 @@ class Fingerprint
             ->writeFile("{$frontendFolder}/Dockerfile")
             ->writeFile("{$frontendFolder}/compose.override.yaml")
             ->writeFile("{$frontendFolder}/compose.yaml")
+            ->writeWithFinder(finder()->in("{$frontendFolder}/.docker")->files())
             ->finish()
         ;
     }
