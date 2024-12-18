@@ -5,8 +5,8 @@ services:
         build:
             context: .
             target: frankenphp_dev
-        ports:
-            - "11115:11115"
+        #ports:
+        #   - "11115:11115" Uncomment this line if you use PHPStan PRO or remove
         volumes:
             - ./:/app
             - ../.castor:/.castor
