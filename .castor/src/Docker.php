@@ -103,4 +103,17 @@ class Docker implements CommandBuilderInterface
 
         return run($this, context: $context);
     }
+
+    public function hasImages(array $images): bool
+    {
+        $output = $this->add('compose', 'images')->run(context()->withQuiet())->getOutput();
+
+        foreach ($images as $image) {
+            if (! str_contains($output, $image)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

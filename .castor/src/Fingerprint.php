@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use function Castor\finder;
 use function Castor\hasher;
 
 class Fingerprint
@@ -15,9 +16,11 @@ class Fingerprint
             ->writeFile("{$backendFolder}/Dockerfile")
             ->writeFile("{$backendFolder}/compose.override.yaml")
             ->writeFile("{$backendFolder}/compose.yaml")
+            ->writeWithFinder(finder()->in("{$backendFolder}/.docker")->files())
             ->writeFile("{$frontendFolder}/Dockerfile")
             ->writeFile("{$frontendFolder}/compose.override.yaml")
             ->writeFile("{$frontendFolder}/compose.yaml")
+            ->writeWithFinder(finder()->in("{$frontendFolder}/.docker")->files())
             ->finish()
         ;
     }

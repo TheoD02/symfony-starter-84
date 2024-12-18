@@ -27,11 +27,7 @@ function deploy_build_image(string $tag = 'latest'): void
     docker([
         'build',
         '--progress', 'plain',
-        '--build-arg', ...array_map(
-            static fn ($key, $value) => \sprintf('%s="%s"', $key, $value),
-            array_keys($buildArgs),
-            $buildArgs
-        ),
+        '--build-arg', "BUILD_TIME={$buildArgs['BUILD_TIME']}",
         '-t', generate_image_name($tag),
         context()->workingDirectory,
     ])

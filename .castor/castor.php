@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Castor\Attribute\AsTask;
 
+use function Castor\capture;
 use function Castor\fingerprint;
 use function Castor\import;
 use function Castor\io;
@@ -15,14 +16,24 @@ import(__DIR__ . '/src');
 #[AsTask(description: 'Build the docker containers')]
 function build(bool $force = false): void
 {
+    $buildArgs = [
+        'USER_ID' => capture(['id', '-u']),
+        'GROUP_ID' => capture(['id', '-g']),
+    ];
+
     if (
-        ! fingerprint(
-            callback: static fn () => docker([
-                'compose', '--progress', 'plain', '-f', 'compose.yaml', '-f', 'compose.override.yaml', 'build']
-            )->run(),
+        !fingerprint(
+            callback: static fn() => docker([
+                'compose',
+                '--progress', 'plain',
+                '-f', 'compose.yaml', '-f', 'compose.override.yaml',
+                'build',
+                '--build-arg', "USER_ID={$buildArgs['USER_ID']}",
+                '--build-arg', "GROUP_ID={$buildArgs['GROUP_ID']}",
+            ])->debug()->run(),
             id: 'docker-build',
             fingerprint: fgp()->docker(),
-            force: $force,
+            force: $force || !docker()->hasImages(['test-php', 'test-front']),
         )
     ) {
         io()->note(
@@ -55,7 +66,7 @@ function restart(bool $force = false): void
 #[AsTask(description: 'Install the project dependencies')]
 function install(bool $force = false, bool $noStart = false): void
 {
-    if ($noStart === false && ! docker()->isRunningInDocker()) {
+    if ($noStart === false && !docker()->isRunningInDocker()) {
         start();
     }
 
