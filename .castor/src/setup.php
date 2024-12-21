@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 use Castor\Attribute\AsTask;
+
 use function Castor\finder;
 use function Castor\io;
 use function Castor\run;
@@ -15,14 +18,18 @@ function setup(): void
 
     io()->writeln('Please provide the following information:');
     $projectName = io()->ask('What is the name of the project?');
-    $containerPrefix = io()->ask('What is the container prefix?', u($projectName)->snake()->replace('_', '-')->toString());
+    $containerPrefix = io()->ask(
+        'What is the container prefix?',
+        u($projectName)->snake()->replace('_', '-')->toString()
+    );
     $urlPrefix = io()->ask('What is the url prefix?', u($projectName)->snake()->replace('_', '-')->toString());
 
     $files = finder()
         ->in(root_context()->workingDirectory)
         ->name(['*.yml', '*.yaml', '*.json', '*.bru'])
         ->notName(['vendor', 'node_modules'])
-        ->files();
+        ->files()
+    ;
 
     foreach ($files as $file) {
         $content = $file->getContents();
@@ -30,7 +37,8 @@ function setup(): void
             ->replace('{{PROJECT_NAME}}', $projectName)
             ->replace('{{PREFIX_URL}}', $urlPrefix)
             ->replace('{{PREFIX_CONTAINER}}', $containerPrefix)
-            ->toString();
+            ->toString()
+        ;
 
         file_put_contents($file->getPathname(), $content);
     }
@@ -44,7 +52,7 @@ function setup(): void
         'You can access the project at the following URLs after the services are started:',
         " - Frontend: https://{$urlPrefix}.web.localhost",
         " - Backend: https://{$urlPrefix}.api.localhost/api",
-        "",
+        '',
         'You can remove ensure_project_has_run_setup_before_any() listener from .castor/src/listeners.php now (manually)',
         '',
         'If you want to restart from a brand new Symfony installation you can run the `castor reset-project` task',
@@ -68,6 +76,7 @@ function reset_project(): void
 
     if (io()->confirm('Are you sure you want to reset the project? (ALL FILES WILL BE DELETED)') === false) {
         io()->writeln('Project reset aborted');
+
         return;
     }
 
@@ -77,7 +86,8 @@ function reset_project(): void
         ->directories()
         ->depth(0)
         ->notName(['.docker', 'vendor-bin'])
-        ->getIterator();
+        ->getIterator()
+    ;
 
     $files = finder()
         ->in(symfony_context()->workingDirectory)
@@ -85,13 +95,14 @@ function reset_project(): void
         ->files()
         ->depth(0)
         ->notName(['compose.*', 'Dockerfile'])
-        ->getIterator();
+        ->getIterator()
+    ;
 
     $directoriesString = array_map(
-        static fn(SplFileInfo $dir) => $dir->getRealPath() . '/',
+        static fn (SplFileInfo $dir) => $dir->getRealPath() . '/',
         iterator_to_array($directories)
     );
-    $filesString = array_map(static fn(SplFileInfo $file) => $file->getRealPath(), iterator_to_array($files));
+    $filesString = array_map(static fn (SplFileInfo $file) => $file->getRealPath(), iterator_to_array($files));
     run(['rm', '-rf', ...$directoriesString, ...$filesString], allowFailure: true);
     io()->success('Project reset');
     try {

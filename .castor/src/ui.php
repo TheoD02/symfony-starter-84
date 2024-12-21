@@ -9,20 +9,18 @@ use Castor\Attribute\AsTask;
 use function Castor\fingerprint;
 use function Castor\fs;
 use function Castor\io;
-use function frontend_context;
-use function yarn;
 
 #[AsTask(name: 'install', description: 'Install the project dependencies')]
 function ui_install(bool $force = false): void
 {
     if (
-        !fingerprint(
+        ! fingerprint(
             callback: static function () {
                 yarn(['install'])->run();
             },
             id: 'yarn-install',
             fingerprint: fgp()->yarn(),
-            force: $force || !fs()->exists(frontend_context()->workingDirectory . '/node_modules'),
+            force: $force || ! fs()->exists(frontend_context()->workingDirectory . '/node_modules'),
         )
     ) {
         io()->note('The package.json file has not changed since the last run, skipping the yarn install command.');

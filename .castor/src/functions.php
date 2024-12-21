@@ -50,7 +50,7 @@ function node(array $commands = [], string $user = 'root'): Docker
 /**
  * @param array<string> $commands
  */
-function yarn(array $commands = [], string $user = 'root'): Docker
+function yarn(array $commands = [], string $user = 'node'): Docker
 {
     return node(['yarn', ...$commands], user: $user);
 }
