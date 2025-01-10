@@ -75,3 +75,9 @@ function shell(string $user = 'www-data', string $shell = 'fish'): void
 {
     php([$shell], user: $user)->run();
 }
+
+#[AsTask(name: 'console', description: 'Run the Symfony console in the PHP container')]
+function sf_console(array $cmds): void
+{
+    console($cmds)->run();
+}
