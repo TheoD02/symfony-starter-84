@@ -28,7 +28,7 @@ function build(bool $force = false): void
             ])->run(),
             id: 'docker-build',
             fingerprint: fgp()->docker(),
-            force: $force || ! docker()->hasImages(['test-php', 'test-front']),
+            force: $force || ! docker()->hasImages(['{{PREFIX_CONTAINER}}-php', '{{PREFIX_CONTAINER}}-front']),
         )
     ) {
         io()->note(
